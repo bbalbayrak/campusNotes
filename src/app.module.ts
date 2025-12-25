@@ -8,10 +8,12 @@ import { LecturesModule } from './modules/lectures/lectures.module';
 import { NotesModule } from './modules/notes/notes.module';
 import { FollowsUsersModule } from './modules/follows_users/follows_users.module';
 import { FollowsDepartmentsModule } from './modules/follows_departments/follows_departments.module';
+import { FollowsLecturesController } from './modules/follows_lectures/follows_lectures.controller';
+import { FollowsLecturesModule } from './modules/follows_lectures/follows_lectures.module';
 
 @Module({
-  imports: [UsersModule, UniversitiesModule, DepartmentsModule, LecturesModule, NotesModule, FollowsUsersModule, FollowsDepartmentsModule],
-  controllers: [AppController],
+  imports: [UsersModule, UniversitiesModule, DepartmentsModule, LecturesModule, NotesModule, FollowsUsersModule, FollowsDepartmentsModule, FollowsLecturesModule],
+  controllers: [AppController, FollowsLecturesController],
   providers: [AppService],
 })
 export class AppModule {}
