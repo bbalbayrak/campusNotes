@@ -15,10 +15,25 @@ import { CommentsModule } from './modules/comments/comments.module';
 import { EventsModule } from './modules/events/events.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { AuditLogsModule } from './modules/audit_logs/audit_logs.module';
-import { AuthSessionsModule } from './modules/auth_sessions/auth_sessions.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [UsersModule, UniversitiesModule, DepartmentsModule, LecturesModule, NotesModule, FollowsUsersModule, FollowsDepartmentsModule, FollowsLecturesModule, NotePurchasesModule, CommentsModule, EventsModule, ReportsModule, AuditLogsModule, AuthSessionsModule],
+  imports: [
+    UsersModule,
+    UniversitiesModule,
+    DepartmentsModule,
+    LecturesModule,
+    NotesModule,
+    FollowsUsersModule,
+    FollowsDepartmentsModule,
+    FollowsLecturesModule,
+    NotePurchasesModule,
+    CommentsModule,
+    EventsModule,
+    ReportsModule,
+    AuditLogsModule,
+    AuthModule,
+  ],
   controllers: [AppController, FollowsLecturesController],
   providers: [AppService],
 })
