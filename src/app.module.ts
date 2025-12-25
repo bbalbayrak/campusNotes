@@ -13,9 +13,10 @@ import { FollowsLecturesModule } from './modules/follows_lectures/follows_lectur
 import { NotePurchasesModule } from './modules/note_purchases/note_purchases.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { EventsModule } from './modules/events/events.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
-  imports: [UsersModule, UniversitiesModule, DepartmentsModule, LecturesModule, NotesModule, FollowsUsersModule, FollowsDepartmentsModule, FollowsLecturesModule, NotePurchasesModule, CommentsModule, EventsModule],
+  imports: [UsersModule, UniversitiesModule, DepartmentsModule, LecturesModule, NotesModule, FollowsUsersModule, FollowsDepartmentsModule, FollowsLecturesModule, NotePurchasesModule, CommentsModule, EventsModule, ReportsModule],
   controllers: [AppController, FollowsLecturesController],
   providers: [AppService],
 })
