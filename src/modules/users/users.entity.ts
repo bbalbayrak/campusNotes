@@ -1,4 +1,5 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { UserType } from './userTypes';
 
 @Table
 export class User extends Model<User> {
@@ -22,10 +23,11 @@ export class User extends Model<User> {
   password: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.ENUM,
+    values: Object.values(UserType),
     allowNull: false,
   })
-  role: string;
+  role: UserType;
 
   @Column({
     type: DataType.BOOLEAN,

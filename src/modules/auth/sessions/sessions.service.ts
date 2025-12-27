@@ -23,7 +23,7 @@ export class SessionService {
       refresh_token_hash: tokenHash,
       user_agent: params.userAgent,
       ip_address: params.ipAddress,
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
     });
   }
 
