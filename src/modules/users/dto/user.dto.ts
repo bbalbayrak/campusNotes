@@ -32,8 +32,7 @@ export class UserDto {
 
   @IsNotEmpty({ message: 'Role is required' })
   @IsEnum(UserType, {
-    message:
-      'User status must be either Student, Professor, Moderator, or Admin',
+    message: 'User Role must be either Student, Professor, Moderator, or Admin',
   })
   readonly role: UserType;
 

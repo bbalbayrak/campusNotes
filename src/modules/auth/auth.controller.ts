@@ -31,7 +31,7 @@ export class AuthController {
 
     return res.status(HttpStatus.CREATED).json({
       message: 'User registered successfully',
-      ...newUser,
+      data: newUser,
     });
   }
 
@@ -71,7 +71,12 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Req() req: any) {
-    return this.authService.logout(req.user.id);
+  async logout(@Req() req: Request, @Res() res: Response) {
+    const user = req['user'];
+
+    return res.status(HttpStatus.OK).json({
+      message: 'Logged out successfully',
+      data: await this.authService.logout(user.userId),
+    });
   }
 }
