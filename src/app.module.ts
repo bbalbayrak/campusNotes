@@ -16,9 +16,11 @@ import { EventsModule } from './modules/events/events.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { AuditLogsModule } from './modules/audit_logs/audit_logs.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
     UniversitiesModule,
     DepartmentsModule,
