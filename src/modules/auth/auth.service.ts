@@ -47,11 +47,16 @@ export class AuthService {
   }
 
   async register(userData: UserDto, userAgent?: string, ipAddress?: string) {
+    const existingUser = await this.userService.findByEmail(userData.email);
+
+    if (existingUser) {
+      throw new ForbiddenException('Email is already registered');
+    }
+
     const user = await this.userService.createUser(userData);
 
     const accessToken = await this.signAccessToken(user);
     const refreshToken = await this.signRefreshToken(user);
-    //check the existing mail
     await this.sessionService.createSession({
       userId: user.id,
       refreshToken,
