@@ -52,4 +52,20 @@ export class DepartmentsService {
     }
     return;
   }
+
+  async getDepartmentsByUniversityId(
+    universityId: number,
+  ): Promise<Department[]> {
+    const departments = await this.departmentRepository.findAll<Department>({
+      where: { university_id: universityId },
+    });
+
+    if (!departments || departments.length === 0 || departments === null) {
+      throw new NotFoundException(
+        'No departments found for the given university ID',
+      );
+    }
+
+    return departments;
+  }
 }

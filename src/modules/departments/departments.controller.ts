@@ -17,11 +17,15 @@ import { RolesGuard } from 'src/decorators/roles.guard';
 import { DepartmentDto } from './dto/department.dto';
 import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorators';
+import { UniversitiesService } from '../universities/universities.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('department')
 export class DepartmentsController {
-  constructor(private readonly departmentsService: DepartmentsService) {}
+  constructor(
+    private readonly departmentsService: DepartmentsService,
+    private readonly universityService: UniversitiesService,
+  ) {}
 
   @Roles('admin')
   @Post('create')
@@ -58,6 +62,22 @@ export class DepartmentsController {
     return res.json({
       message: `Department with ID ${id} retrieved successfully`,
       department: department,
+    });
+  }
+
+  @Get('university/:universityId')
+  @HttpCode(HttpStatus.OK)
+  async getDepartmentsByUniversityId(
+    @Param('universityId', ParseIntPipe) universityId: number,
+    @Res() res: Response,
+  ) {
+    const university =
+      await this.universityService.getUniversityById(universityId);
+    const departments =
+      await this.departmentsService.getDepartmentsByUniversityId(universityId);
+    return res.json({
+      message: `Departments for ${university.name} retrieved successfully`,
+      departments: departments,
     });
   }
 
