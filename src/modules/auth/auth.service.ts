@@ -51,7 +51,7 @@ export class AuthService {
 
     const accessToken = await this.signAccessToken(user);
     const refreshToken = await this.signRefreshToken(user);
-
+    //check the existing mail
     await this.sessionService.createSession({
       userId: user.id,
       refreshToken,
