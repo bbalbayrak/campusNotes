@@ -4,6 +4,7 @@ import { databaseConfig } from './database.config';
 import { User } from 'src/modules/users/users.entity';
 import { AuthSession } from 'src/modules/auth/sessions/session.entity';
 import { University } from 'src/modules/universities/universities.entity';
+import { Department } from 'src/modules/departments/departments.entity';
 
 export const databaseProviders = [
   {
@@ -25,7 +26,7 @@ export const databaseProviders = [
       }
       const sequelize = new Sequelize(config);
 
-      sequelize.addModels([User, AuthSession, University]);
+      sequelize.addModels([User, AuthSession, University, Department]);
 
       await sequelize.sync();
       return sequelize;
