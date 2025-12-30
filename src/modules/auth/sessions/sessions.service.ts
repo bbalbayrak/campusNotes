@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AUTH_SESSION_REPOSITORY } from 'src/config/constants';
 import { AuthSession } from './session.entity';
 import * as bcrypt from 'bcryptjs';
+import { Transaction } from 'sequelize';
 
 @Injectable()
 export class SessionService {
@@ -49,7 +50,10 @@ export class SessionService {
     return this.sessionModel.destroy({ where: { id: sessionId } });
   }
 
-  async revokeAll(userId: number) {
-    return this.sessionModel.destroy({ where: { user_id: userId } });
+  async revokeAll(userId: number, options?: { transaction?: Transaction }) {
+    return await this.sessionModel.destroy({
+      where: { user_id: userId },
+      transaction: options?.transaction,
+    });
   }
 }
