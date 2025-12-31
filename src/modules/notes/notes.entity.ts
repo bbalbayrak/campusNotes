@@ -8,6 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { User } from '../users/users.entity';
 import { Lecture } from '../lectures/lectures.entity';
+import { NoteStatus } from './noteStatus';
 
 @Table
 export class Note extends Model<Note> {
@@ -63,16 +64,37 @@ export class Note extends Model<Note> {
   price: number;
 
   @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  })
+  view_count: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  })
+  download_count: number;
+
+  @Column({
+    type: DataType.DECIMAL(3, 2),
+    allowNull: false,
+    defaultValue: 0,
+  })
+  average_rating: number;
+
+  @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
     defaultValue: false,
   })
-  is_paid: boolean;
+  is_free: boolean;
 
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
-    defaultValue: 'pending',
+    type: DataType.ENUM(...Object.values(NoteStatus)),
+    allowNull: true,
+    defaultValue: NoteStatus.PENDING,
   })
   status: string;
 }
