@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { NOTE_REPOSITORY } from 'src/config/constants';
 import { Note } from './notes.entity';
 import { NoteStatus } from './noteStatus';
-import { NoteDto } from './dto/note.dto';
+import { CreateNoteDto } from './dto/note.dto';
 
 @Injectable()
 export class NotesService {
