@@ -3,11 +3,15 @@ import { NOTE_REPOSITORY } from 'src/config/constants';
 import { Note } from './notes.entity';
 import { NoteStatus } from './noteStatus';
 import { CreateNoteDto } from './dto/note.dto';
+import { UsersService } from '../users/users.service';
+import { AwsS3Service } from 'src/config/aws/aws-s3.service';
 
 @Injectable()
 export class NotesService {
   constructor(
     @Inject(NOTE_REPOSITORY) private readonly noteRepository: typeof Note,
+    private readonly userService: UsersService,
+    private readonly awsS3Service: AwsS3Service,
   ) {}
 
   async getApprovedNotes(): Promise<Note[]> {
@@ -106,24 +110,34 @@ export class NotesService {
   }
 
   async getNoteDetailsById(noteId: number): Promise<Note> {
-    const note = await this.noteRepository.findOne({
-      where: { id: noteId },
-    });
+    const note = await this.noteRepository.findByPk(noteId);
     if (note) {
       await note.increment('view_count', { by: 1 });
     } else {
       throw new NotFoundException(`Note with ID ${noteId} not found.`);
     }
-    return note;
+    const signedUrl = await this.awsS3Service.getSignedUrl(note.file_url);
+
+    return {
+      note: note,
+      fileUrl: signedUrl,
+    } as any;
   }
 
-  async createNote(noteData: NoteDto): Promise<Note> {
+  async createNote(noteData: Partial<Note>): Promise<Note> {
+    const checkAuthor = await this.userService.findUserById(noteData.author_id);
+    if (!checkAuthor) {
+      throw new NotFoundException(
+        `Author with ID ${noteData.author_id} not found.`,
+      );
+    }
+
     const newNote = await this.noteRepository.create(noteData);
     return newNote;
   }
 
   //AUTHOR ONLY
-  async updateNote(noteId: number, noteData: NoteDto): Promise<Note> {
+  async updateNote(noteId: number, noteData: CreateNoteDto): Promise<Note> {
     const note = await this.noteRepository.findOne({
       where: { id: noteId },
     });
@@ -133,7 +147,11 @@ export class NotesService {
     await this.noteRepository.update(noteData, {
       where: { id: noteId },
     });
-    return this.getNoteDetailsById(noteId);
+    const updatedNote = await this.noteRepository.findOne({
+      where: { id: noteId },
+    });
+
+    return updatedNote;
   }
 
   //AUTHOR OR ADMIN

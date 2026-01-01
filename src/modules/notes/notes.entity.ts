@@ -97,4 +97,7 @@ export class Note extends Model<Note> {
     defaultValue: NoteStatus.PENDING,
   })
   status: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  preview_image_url: string;
 }
