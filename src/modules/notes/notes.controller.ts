@@ -28,6 +28,7 @@ import { Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorators';
 import { RolesGuard } from 'src/decorators/roles.guard';
 import { NoteStatus } from './noteStatus';
+import { PreviewService } from '../preview/preview.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('notes')
@@ -35,6 +36,7 @@ export class NotesController {
   constructor(
     private readonly notesService: NotesService,
     private readonly awsS3Service: AwsS3Service,
+    private readonly previewService: PreviewService,
   ) {}
 
   @Post('create')
@@ -51,6 +53,16 @@ export class NotesController {
 
     const fileKey = await this.awsS3Service.uploadFile(file);
 
+    const previewBuffer = await this.previewService.generatePreview(
+      file.buffer,
+      fileKey.split('/').pop(),
+    );
+
+    const previewUrl = await this.awsS3Service.uploadPreview(
+      previewBuffer,
+      fileKey.split('/').pop(),
+    );
+
     const fileType =
       file.mimetype === 'application/pdf'
         ? NoteFileType.PDF
@@ -65,6 +77,7 @@ export class NotesController {
       is_free: createNoteDto.isFree,
       file_url: fileKey,
       file_type: fileType,
+      preview_image_url: previewUrl,
     });
 
     return res.json({ message: 'Note created successfully', note: newNote });

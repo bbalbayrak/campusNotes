@@ -48,4 +48,23 @@ export class AwsS3Service {
 
     return getSignedUrl(this.s3, command, { expiresIn });
   }
+
+  async uploadPreview(buffer: Buffer, fileId: string) {
+    const safeId = fileId.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+
+    const key = `previews/${safeId}.png`;
+
+    await this.s3.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: buffer,
+        ContentType: 'image/png',
+      }),
+    );
+
+    return `https://${this.bucket}.s3.${this.configService.get(
+      'AWS_REGION',
+    )}.amazonaws.com/${key}`;
+  }
 }
