@@ -5,6 +5,7 @@ import { NoteStatus } from './noteStatus';
 import { CreateNoteDto } from './dto/note.dto';
 import { UsersService } from '../users/users.service';
 import { AwsS3Service } from 'src/config/aws/aws-s3.service';
+import { NotesFeedDto } from './dto/notesFeedDto';
 
 @Injectable()
 export class NotesService {
@@ -111,17 +112,42 @@ export class NotesService {
 
   async getNoteDetailsById(noteId: number): Promise<Note> {
     const note = await this.noteRepository.findByPk(noteId);
+
     if (note) {
       await note.increment('view_count', { by: 1 });
     } else {
       throw new NotFoundException(`Note with ID ${noteId} not found.`);
     }
+
+    //   const hasAccess =
+    //   note.is_free || await this.notePurchaseRepository.findOne({
+    //     where: { note_id: noteId, buyer_id: userId, status: 'completed' },
+    //   });
+
+    // let signedUrl = null;
+
+    // if (hasAccess) {
+    //   signedUrl = await this.awsS3Service.getSignedUrl(
+    //     note.file_url,
+    //     60 * 10, // 10 dk
+    //   );
+    // }
+
     const signedUrl = await this.awsS3Service.getSignedUrl(note.file_url);
 
     return {
       note: note,
       fileUrl: signedUrl,
     } as any;
+
+    //   return {
+    //   id: note.id,
+    //   title: note.title,
+    //   description: note.description,
+    //   previewImageUrl: note.preview_image_url,
+    //   signedUrl,
+    //   hasAccess,
+    // };
   }
 
   async createNote(noteData: Partial<Note>): Promise<Note> {
@@ -188,5 +214,51 @@ export class NotesService {
       throw new NotFoundException('No popular notes found.');
     }
     return popularNotes;
+  }
+
+  async getNotesFeed(query: NotesFeedDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const offset = (page - 1) * limit;
+
+    const where: any = {
+      status: NoteStatus.APPROVED,
+    };
+
+    if (query.lectureId) {
+      where.lecture_id = query.lectureId;
+    }
+
+    const { rows, count } = await this.noteRepository.findAndCountAll({
+      where,
+      attributes: [
+        'id',
+        'title',
+        'preview_image_url',
+        'price',
+        'is_free',
+        'average_rating',
+      ],
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']],
+    });
+
+    return {
+      meta: {
+        page,
+        limit,
+        total: count,
+        hasNextPage: offset + rows.length < count,
+      },
+      data: rows.map((note) => ({
+        id: note.id,
+        title: note.title,
+        previewImageUrl: note.preview_image_url,
+        price: note.price,
+        isFree: note.is_free,
+        averageRating: note.average_rating,
+      })),
+    };
   }
 }

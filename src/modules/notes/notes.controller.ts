@@ -29,6 +29,7 @@ import { Roles } from 'src/decorators/roles.decorators';
 import { RolesGuard } from 'src/decorators/roles.guard';
 import { NoteStatus } from './noteStatus';
 import { PreviewService } from '../preview/preview.service';
+import { NotesFeedDto } from './dto/notesFeedDto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('notes')
@@ -144,6 +145,18 @@ export class NotesController {
     return res.json({
       message: 'Popular notes fetched successfully',
       notes: notes,
+    });
+  }
+
+  @Get('feed')
+  async getNotesFeed(
+    @Query('query') query: NotesFeedDto,
+    @Res() res: Response,
+  ) {
+    const feed = await this.notesService.getNotesFeed(query);
+    return res.json({
+      message: 'Notes feed fetched successfully',
+      feed: feed,
     });
   }
 
