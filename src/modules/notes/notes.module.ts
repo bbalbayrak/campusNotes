@@ -8,9 +8,11 @@ import { UsersModule } from '../users/users.module';
 import { PreviewModule } from '../preview/preview.module';
 import { BullModule } from '@nestjs/bullmq';
 import { NoteReview } from 'src/config/redis/note-reviews';
+import { RedisModule } from 'src/config/redis/redis.module';
 
 @Module({
   imports: [
+    RedisModule,
     AwsModule,
     UsersModule,
     PreviewModule,

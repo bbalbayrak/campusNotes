@@ -9,6 +9,7 @@ import { NotesFeedDto } from './dto/notesFeedDto';
 import { Redis } from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { RedisService } from 'src/config/redis/redis.service';
 @Injectable()
 export class NotesService {
   private readonly redis = new Redis();
@@ -17,6 +18,7 @@ export class NotesService {
     private readonly userService: UsersService,
     private readonly awsS3Service: AwsS3Service,
     @InjectQueue('note-reviews') private noteReviewsQueue: Queue,
+    private readonly redisService: RedisService,
   ) {}
 
   async getApprovedNotes(): Promise<Note[]> {
@@ -74,7 +76,7 @@ export class NotesService {
       { status },
       { where: { id: noteId }, returning: true },
     );
-
+    await this.invalidateFeedCache();
     return updatedNote[1][0];
   }
 
@@ -87,6 +89,7 @@ export class NotesService {
       throw new NotFoundException(`Note with ID ${noteId} not found.`);
     }
     const data = this.updateNoteStatus(noteId, NoteStatus.APPROVED);
+    await this.invalidateFeedCache();
     return data;
   }
 
@@ -131,12 +134,15 @@ export class NotesService {
       await this.noteReviewsQueue.add('increment-view', { noteId });
     }
 
+    //for now free access to all notes
+    const hasAccess = note.is_free;
+
     //   const hasAccess =
     //   note.is_free || await this.notePurchaseRepository.findOne({
     //     where: { note_id: noteId, buyer_id: userId, status: 'completed' },
     //   });
 
-    // let signedUrl = null;
+    let signedUrl: string | null = null;
 
     // if (hasAccess) {
     //   signedUrl = await this.awsS3Service.getSignedUrl(
@@ -145,12 +151,34 @@ export class NotesService {
     //   );
     // }
 
-    const signedUrl = await this.awsS3Service.getSignedUrl(note.file_url);
+    if (hasAccess) {
+      const signedCacheKey = `signed:note:${noteId}:user:${userId}`;
+      const cachedSignedUrl = await this.redis.get(signedCacheKey);
 
-    return {
-      note: note,
-      fileUrl: signedUrl,
-    } as any;
+      if (cachedSignedUrl) {
+        signedUrl = cachedSignedUrl;
+      } else {
+        signedUrl = await this.awsS3Service.getSignedUrl(
+          note.file_url,
+          60 * 30,
+        );
+
+        await this.redis.set(signedCacheKey, signedUrl, 'EX', 60 * 20);
+      }
+    }
+
+    const response = {
+      id: note.id,
+      title: note.title,
+      description: note.description,
+      preview_image_url: note.preview_image_url,
+      hasAccess,
+      signedUrl,
+    };
+
+    //const signedUrl = await this.awsS3Service.getSignedUrl(note.file_url);
+
+    return response as any;
 
     //   return {
     //   id: note.id,
@@ -171,6 +199,9 @@ export class NotesService {
     }
 
     const newNote = await this.noteRepository.create(noteData);
+    if (newNote.status === NoteStatus.APPROVED) {
+      await this.invalidateFeedCache();
+    }
     return newNote;
   }
 
@@ -189,6 +220,8 @@ export class NotesService {
       where: { id: noteId },
     });
 
+    await this.invalidateFeedCache();
+
     return updatedNote;
   }
 
@@ -203,6 +236,7 @@ export class NotesService {
     await this.noteRepository.destroy({
       where: { id: noteId },
     });
+    await this.invalidateFeedCache();
     return { message: `Note with ID ${noteId} has been deleted.` };
   }
 
@@ -233,6 +267,14 @@ export class NotesService {
     const limit = query.limit ?? 10;
     const offset = (page - 1) * limit;
 
+    const lectureKey = query.lectureId ?? 'all';
+    const cacheKey = `notes:feed:page:${page}:limit:${limit}:lecture:${lectureKey}`;
+
+    const cached = await this.redisService.client.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const where: any = {
       status: NoteStatus.APPROVED,
     };
@@ -256,7 +298,7 @@ export class NotesService {
       order: [['createdAt', 'DESC']],
     });
 
-    return {
+    const response = {
       meta: {
         page,
         limit,
@@ -272,5 +314,20 @@ export class NotesService {
         averageRating: note.average_rating,
       })),
     };
+
+    await this.redisService.client.set(
+      cacheKey,
+      JSON.stringify(response),
+      'EX',
+      60,
+    );
+    return response;
+  }
+
+  async invalidateFeedCache() {
+    const keys = await this.redisService.client.keys('notes:feed:*');
+    if (keys.length) {
+      await this.redisService.client.del(keys);
+    }
   }
 }
