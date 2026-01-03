@@ -11,23 +11,22 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/passport/jwt.guard';
-import { LocalAuthGuard } from '../auth/passport/local-auth.guard';
 import { NotesService } from './notes.service';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/config/aws/multer-options';
 import { AwsS3Service } from 'src/config/aws/aws-s3.service';
 import { NoteFileType } from './noteFile.type';
 import { CreateNoteDto } from './dto/note.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { Roles } from 'src/decorators/roles.decorators';
 import { RolesGuard } from 'src/decorators/roles.guard';
-import { NoteStatus } from './noteStatus';
 import { PreviewService } from '../preview/preview.service';
 import { NotesFeedDto } from './dto/notesFeedDto';
 
@@ -86,8 +85,14 @@ export class NotesController {
 
   @HttpCode(HttpStatus.OK)
   @Get('detail/:id')
-  async getNoteById(@Param('id') id: number, @Res() res: Response) {
-    const note = await this.notesService.getNoteDetailsById(id);
+  async getNoteById(
+    @Param('id') id: number,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const userId = req['user'].userId;
+
+    const note = await this.notesService.getNoteDetailsById(id, userId);
 
     if (!note) {
       throw new NotFoundException('Note not found');

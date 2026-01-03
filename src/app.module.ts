@@ -20,9 +20,20 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './config/database/database.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { BullModule } from '@nestjs/bullmq';
+import { NoteReview } from './config/redis/note-reviews';
 
 @Module({
   imports: [
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT) || 6379,
+      },
+    }),
+    BullModule.registerQueue({
+      name: 'note-reviews',
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     UsersModule,

@@ -6,13 +6,17 @@ import { CreateNoteDto } from './dto/note.dto';
 import { UsersService } from '../users/users.service';
 import { AwsS3Service } from 'src/config/aws/aws-s3.service';
 import { NotesFeedDto } from './dto/notesFeedDto';
-
+import { Redis } from 'ioredis';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 @Injectable()
 export class NotesService {
+  private readonly redis = new Redis();
   constructor(
     @Inject(NOTE_REPOSITORY) private readonly noteRepository: typeof Note,
     private readonly userService: UsersService,
     private readonly awsS3Service: AwsS3Service,
+    @InjectQueue('note-reviews') private noteReviewsQueue: Queue,
   ) {}
 
   async getApprovedNotes(): Promise<Note[]> {
@@ -110,13 +114,21 @@ export class NotesService {
     return notes;
   }
 
-  async getNoteDetailsById(noteId: number): Promise<Note> {
+  async getNoteDetailsById(noteId: number, userId: number): Promise<Note> {
     const note = await this.noteRepository.findByPk(noteId);
 
-    if (note) {
-      await note.increment('view_count', { by: 1 });
-    } else {
-      throw new NotFoundException(`Note with ID ${noteId} not found.`);
+    // if (note) {
+    //   await note.increment('view_count', { by: 1 });
+    // } else {
+    //   throw new NotFoundException(`Note with ID ${noteId} not found.`);
+    // }
+
+    const redisKey = `view:note:${noteId}:user:${userId}`;
+    const hasViewed = await this.redis.get(redisKey);
+
+    if (!hasViewed) {
+      await this.redis.set(redisKey, 'true', 'EX', 86400);
+      await this.noteReviewsQueue.add('increment-view', { noteId });
     }
 
     //   const hasAccess =
