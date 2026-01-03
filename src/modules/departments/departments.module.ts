@@ -8,5 +8,6 @@ import { UniversitiesModule } from '../universities/universities.module';
   imports: [UniversitiesModule],
   providers: [DepartmentsService, ...DepartmentsProvider],
   controllers: [DepartmentsController],
+  exports: [DepartmentsService],
 })
 export class DepartmentsModule {}
