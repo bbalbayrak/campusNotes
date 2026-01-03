@@ -8,6 +8,7 @@ import { Department } from 'src/modules/departments/departments.entity';
 import { Lecture } from 'src/modules/lectures/lectures.entity';
 import { Note } from 'src/modules/notes/notes.entity';
 import { FollowsUsers } from 'src/modules/follows_users/follows_users.entity';
+import { FollowLecture } from 'src/modules/follows_lectures/follow_lectures.entity';
 
 export const databaseProviders = [
   {
@@ -37,6 +38,7 @@ export const databaseProviders = [
         Lecture,
         Note,
         FollowsUsers,
+        FollowLecture,
       ]);
 
       await sequelize.sync();
