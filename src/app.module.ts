@@ -22,6 +22,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { BullModule } from '@nestjs/bullmq';
 import { NoteReview } from './config/redis/note-reviews';
+import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { NoteReview } from './config/redis/note-reviews';
         limit: 10,
       },
     ]),
+    BookmarksModule,
   ],
   controllers: [AppController, FollowsLecturesController],
   providers: [
