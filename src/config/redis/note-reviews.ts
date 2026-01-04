@@ -21,6 +21,15 @@ export class NoteReview extends WorkerHost {
         by: 1,
       });
     }
+
+    if (job.name === 'increment-download') {
+      const { noteId } = job.data;
+      await this.noteRepository.increment('download_count', {
+        where: { id: noteId },
+        by: 1,
+      });
+    }
+
     return {};
   }
 }

@@ -205,19 +205,8 @@ export class NotesController {
     });
   }
 
-  //   @Get(':id/download')
-  //   async downloadNote(@Param('id') id: number) {
-  //     const note = await this.notesService.findById(id);
-
-  //     if (!note) {
-  //       throw new NotFoundException('Note not found');
-  //     }
-
-  //     const signedUrl = await this.awsS3Service.getSignedUrl(note.fileUrl);
-
-  //     return {
-  //       url: signedUrl,
-  //       expiresIn: '5 minutes',
-  //     };
-  //   }
+  @Post('download/:id')
+  async downloadNote(@Param('id') id: number, @Req() req: Request) {
+    return this.notesService.registerDownload(id, req['user'].userId);
+  }
 }

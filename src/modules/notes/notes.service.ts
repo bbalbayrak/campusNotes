@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { NOTE_REPOSITORY } from 'src/config/constants';
 import { Note } from './notes.entity';
 import { NoteStatus } from './noteStatus';
@@ -252,11 +257,39 @@ export class NotesService {
   }
 
   //note download registration
-  async registerDownload(id: number) {
-    await this.noteRepository.increment('download_count', {
-      where: { id },
-      by: 1,
-    });
+  async registerDownload(noteId: number, userId: number) {
+    const note = await this.noteRepository.findByPk(noteId);
+
+    if (!note) {
+      throw new NotFoundException('Note not found');
+    }
+
+    const hasAccess = note.is_free === true;
+
+    if (!hasAccess) {
+      throw new ForbiddenException('You have no access to this note');
+    }
+
+    const redisKey = `download:note:${noteId}:user:${userId}`;
+    const alreadyDownloaded = await this.redis.get(redisKey);
+
+    if (!alreadyDownloaded) {
+      await this.redis.set(redisKey, 'true', 'EX', 86400);
+      await this.noteReviewsQueue.add('increment-download', { noteId });
+    }
+    const signedUrlKey = `signedurl:note:${noteId}:user:${userId}`;
+    let signedUrl = await this.redis.get(signedUrlKey);
+
+    if (!signedUrl) {
+      signedUrl = await this.awsS3Service.getSignedUrl(note.file_url, 300);
+
+      await this.redis.set(signedUrlKey, signedUrl, 'EX', 240);
+    }
+
+    return {
+      downloadUrl: signedUrl,
+      expiresIn: 300,
+    };
   }
 
   async getPopularNotes() {
