@@ -9,6 +9,7 @@ import { PreviewModule } from '../preview/preview.module';
 import { BullModule } from '@nestjs/bullmq';
 import { NoteReview } from 'src/config/redis/note-reviews';
 import { RedisModule } from 'src/config/redis/redis.module';
+import { BookmarksModule } from '../bookmarks/bookmarks.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { RedisModule } from 'src/config/redis/redis.module';
     BullModule.registerQueue({
       name: 'note-reviews',
     }),
+    BookmarksModule,
   ],
   providers: [NotesService, ...NotesProvider, NoteReview],
   controllers: [NotesController],

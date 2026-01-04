@@ -10,6 +10,7 @@ import { Redis } from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { RedisService } from 'src/config/redis/redis.service';
+import { BookmarksService } from '../bookmarks/bookmarks.service';
 @Injectable()
 export class NotesService {
   private readonly redis = new Redis();
@@ -19,6 +20,7 @@ export class NotesService {
     private readonly awsS3Service: AwsS3Service,
     @InjectQueue('note-reviews') private noteReviewsQueue: Queue,
     private readonly redisService: RedisService,
+    private readonly bookmarksService: BookmarksService,
   ) {}
 
   async getApprovedNotes(): Promise<Note[]> {
@@ -120,12 +122,6 @@ export class NotesService {
   async getNoteDetailsById(noteId: number, userId: number): Promise<Note> {
     const note = await this.noteRepository.findByPk(noteId);
 
-    // if (note) {
-    //   await note.increment('view_count', { by: 1 });
-    // } else {
-    //   throw new NotFoundException(`Note with ID ${noteId} not found.`);
-    // }
-
     const redisKey = `view:note:${noteId}:user:${userId}`;
     const hasViewed = await this.redis.get(redisKey);
 
@@ -166,13 +162,28 @@ export class NotesService {
         await this.redis.set(signedCacheKey, signedUrl, 'EX', 60 * 20);
       }
     }
+    const isBookmarked = await this.bookmarksService.isBookmarked(
+      userId,
+      noteId,
+    );
 
     const response = {
       id: note.id,
+      lecture_id: note.lecture_id,
+      author_id: note.author_id,
       title: note.title,
       description: note.description,
+      file_url: note.file_url,
+      file_type: note.file_type,
+      price: note.price,
+      view_count: note.view_count,
+      download_count: note.download_count,
+      average_rating: note.average_rating,
+      is_free: note.is_free,
+      status: note.status,
       preview_image_url: note.preview_image_url,
       hasAccess,
+      isBookmarked,
       signedUrl,
     };
 

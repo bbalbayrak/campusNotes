@@ -7,5 +7,6 @@ import { NotesProvider } from '../notes/notes.provider';
 @Module({
   providers: [BookmarksService, ...BookmarksProvider, ...NotesProvider],
   controllers: [BookmarksController],
+  exports: [BookmarksService],
 })
 export class BookmarksModule {}
