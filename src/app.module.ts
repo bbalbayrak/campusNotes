@@ -24,6 +24,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { NoteReview } from './config/redis/note-reviews';
 import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
 import { DownloadPermissionsModule } from './modules/download_permissions/download_permissions.module';
+import { DownloadsModule } from './modules/downloads/downloads.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { DownloadPermissionsModule } from './modules/download_permissions/downlo
     ]),
     BookmarksModule,
     DownloadPermissionsModule,
+    DownloadsModule,
   ],
   controllers: [AppController, FollowsLecturesController],
   providers: [

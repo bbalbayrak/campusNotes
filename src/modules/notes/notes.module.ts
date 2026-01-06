@@ -10,6 +10,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { NoteReview } from 'src/config/redis/note-reviews';
 import { RedisModule } from 'src/config/redis/redis.module';
 import { BookmarksModule } from '../bookmarks/bookmarks.module';
+import { DownloadsModule } from '../downloads/downloads.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { BookmarksModule } from '../bookmarks/bookmarks.module';
       name: 'note-reviews',
     }),
     BookmarksModule,
+    DownloadsModule,
   ],
   providers: [NotesService, ...NotesProvider, NoteReview],
   controllers: [NotesController],

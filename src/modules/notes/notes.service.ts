@@ -16,6 +16,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { RedisService } from 'src/config/redis/redis.service';
 import { BookmarksService } from '../bookmarks/bookmarks.service';
+import { DownloadsService } from '../downloads/downloads.service';
 @Injectable()
 export class NotesService {
   private readonly redis = new Redis();
@@ -26,6 +27,7 @@ export class NotesService {
     @InjectQueue('note-reviews') private noteReviewsQueue: Queue,
     private readonly redisService: RedisService,
     private readonly bookmarksService: BookmarksService,
+    private readonly downloadsService: DownloadsService,
   ) {}
 
   async getApprovedNotes(): Promise<Note[]> {
@@ -286,9 +288,15 @@ export class NotesService {
       await this.redis.set(signedUrlKey, signedUrl, 'EX', 240);
     }
 
+    const downloadedNote = await this.downloadsService.createDownloadRecord(
+      userId,
+      noteId,
+    );
+
     return {
       downloadUrl: signedUrl,
       expiresIn: 300,
+      downloadedNote,
     };
   }
 

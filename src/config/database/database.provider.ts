@@ -11,6 +11,7 @@ import { FollowsUsers } from 'src/modules/follows_users/follows_users.entity';
 import { FollowLecture } from 'src/modules/follows_lectures/follow_lectures.entity';
 import { FollowsDepartments } from 'src/modules/follows_departments/follows_departments.entity';
 import { NoteBookmark } from 'src/modules/bookmarks/bookmarks.entity';
+import { Downloads } from 'src/modules/downloads/downloads.entity';
 
 export const databaseProviders = [
   {
@@ -43,6 +44,7 @@ export const databaseProviders = [
         FollowLecture,
         FollowsDepartments,
         NoteBookmark,
+        Downloads,
       ]);
 
       await sequelize.sync();
