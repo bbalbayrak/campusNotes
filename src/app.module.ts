@@ -23,6 +23,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { BullModule } from '@nestjs/bullmq';
 import { NoteReview } from './config/redis/note-reviews';
 import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
+import { DownloadPermissionsModule } from './modules/download_permissions/download_permissions.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
       },
     ]),
     BookmarksModule,
+    DownloadPermissionsModule,
   ],
   controllers: [AppController, FollowsLecturesController],
   providers: [
