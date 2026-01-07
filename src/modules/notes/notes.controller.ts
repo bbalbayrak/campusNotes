@@ -8,6 +8,7 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -208,5 +209,35 @@ export class NotesController {
   @Post('download/:id')
   async downloadNote(@Param('id') id: number, @Req() req: Request) {
     return this.notesService.registerDownload(id, req['user'].userId);
+  }
+
+  @Get('my')
+  @HttpCode(HttpStatus.OK)
+  async getMyNotes(@Req() req: Request, @Res() res: Response) {
+    const userId = req['user'].userId;
+    const notes = await this.notesService.getMyNotes(userId);
+    return res.json({ message: 'My notes fetched successfully', notes: notes });
+  }
+
+  @Get('my/stats')
+  async getMyNotesStats(@Req() req: Request, @Res() res: Response) {
+    const userId = req['user'].userId;
+    const stats = await this.notesService.getMyStats(userId);
+    return res.json({
+      message: 'My notes stats fetched successfully',
+      stats: stats,
+    });
+  }
+
+  @Patch('unpublish/:noteId')
+  @HttpCode(HttpStatus.OK)
+  async unpublishNote(
+    @Param('noteId', ParseIntPipe) noteId: number,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const userId = req['user'].userId;
+    const result = await this.notesService.unpublishNote(noteId, userId);
+    return res.json({ message: 'Note unpublished successfully', result });
   }
 }

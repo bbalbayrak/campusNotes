@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Sequelize } from 'sequelize-typescript';
 import { NOTE_REPOSITORY } from 'src/config/constants';
 import { Note } from './notes.entity';
 import { NoteStatus } from './noteStatus';
@@ -381,5 +382,62 @@ export class NotesService {
     if (keys.length) {
       await this.redisService.client.del(keys);
     }
+  }
+
+  async getMyNotes(userId: number) {
+    const notes = await this.noteRepository.findAll({
+      where: { author_id: userId },
+      attributes: [
+        'id',
+        'title',
+        'price',
+        'is_free',
+        'status',
+        'view_count',
+        'download_count',
+        'preview_image_url',
+        'createdAt',
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+    if (!notes || notes.length === 0) {
+      throw new NotFoundException('You have not uploaded any notes yet.');
+    }
+
+    return notes;
+  }
+
+  async getMyStats(userId: number) {
+    const totalNotes = await this.noteRepository.count({
+      where: { author_id: userId },
+    });
+
+    const totalDownloads = await this.noteRepository.sum('download_count', {
+      where: { author_id: userId },
+    });
+
+    const finalDownloads = totalDownloads || 0;
+
+    return {
+      totalNotes: Number(totalNotes),
+      totalDownloads: Number(finalDownloads),
+      estimatedEarnings: Number(finalDownloads) * 5,
+    };
+  }
+
+  async unpublishNote(noteId: number, userId: number) {
+    const note = await this.noteRepository.findOne({
+      where: { id: noteId, author_id: userId },
+    });
+
+    if (!note) {
+      throw new ForbiddenException('Note not found or not yours');
+    }
+
+    await note.update({ status: NoteStatus.PENDING });
+
+    await this.invalidateFeedCache();
+
+    return { success: true };
   }
 }
