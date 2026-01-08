@@ -55,4 +55,17 @@ export class User extends Model<User> {
     allowNull: true,
   })
   plan_expires_at: Date | null;
+  @Column({
+    type: DataType.DECIMAL(10, 2),
+    allowNull: false,
+    defaultValue: 0.0,
+  })
+  wallet_balance: number; // For withdrawing earnings
+
+  @Column({
+    type: DataType.DECIMAL(10, 2),
+    allowNull: false,
+    defaultValue: 0.0,
+  })
+  pending_earnings: number; // Earnings not yet withdrawn
 }
