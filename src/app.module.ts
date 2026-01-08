@@ -28,6 +28,7 @@ import { DownloadsModule } from './modules/downloads/downloads.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { UserSubscriptionsModule } from './modules/user_subscriptions/user_subscriptions.module';
 import { EarningsModule } from './modules/earnings/earnings.module';
+import { WithdrawalsModule } from './modules/withdrawals/withdrawals.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { EarningsModule } from './modules/earnings/earnings.module';
     SubscriptionsModule,
     UserSubscriptionsModule,
     EarningsModule,
+    WithdrawalsModule,
   ],
   controllers: [AppController, FollowsLecturesController],
   providers: [
