@@ -28,6 +28,7 @@ export class Subscriptions extends Model<Subscriptions> {
   })
   duration_days: number; // 30, 365
 
+  //share percentages can be deleted later if not needed
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
