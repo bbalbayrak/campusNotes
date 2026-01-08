@@ -46,4 +46,22 @@ export class Subscriptions extends Model<Subscriptions> {
     defaultValue: true,
   })
   is_active: boolean;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  apple_product_id: string; // e.g., "com.campusnotes.propass"
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  google_product_id: string; // e.g., "propass_monthly"
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  features: string; // JSON string of features
 }

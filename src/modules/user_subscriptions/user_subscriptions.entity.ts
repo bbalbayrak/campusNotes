@@ -37,4 +37,40 @@ export class UserSubscription extends Model<UserSubscription> {
     allowNull: false,
   })
   source: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  iap_transaction_id: string; // Apple/Google transaction ID
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  original_transaction_id: string; // For renewal tracking
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  receipt_data: string; // Store receipt for verification
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  auto_renew: boolean; // Is auto-renewal enabled?
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  cancelled_at: Date; // When user cancelled
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  cancellation_reason: string;
 }

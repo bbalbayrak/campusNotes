@@ -8,6 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { User } from '../users/users.entity';
 import { Note } from '../notes/notes.entity';
+import { SubscriptionType } from '../subscriptions/subs.type';
 
 @Table
 export class NotePurchase extends Model<NotePurchase> {
@@ -42,7 +43,7 @@ export class NotePurchase extends Model<NotePurchase> {
     allowNull: false,
     defaultValue: 0,
   })
-  platform_fee: number;
+  platform_amount: number;
 
   @Column({
     type: DataType.STRING,
@@ -50,4 +51,28 @@ export class NotePurchase extends Model<NotePurchase> {
     defaultValue: 'pending',
   })
   status: string;
+
+  @Column({
+    type: DataType.DECIMAL(10, 2),
+    allowNull: false,
+  })
+  author_amount: number; // Amount author receives (60/85/95 TL)
+
+  @Column({
+    type: DataType.ENUM(...Object.values(SubscriptionType)),
+    allowNull: false,
+  })
+  buyer_plan_type: SubscriptionType; // Track buyer's plan at purchase time
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  transaction_id: string; // For IAP verification
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  completed_at: Date; // When purchase was completed
 }
