@@ -1,5 +1,5 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
-import { UserType } from './userTypes';
+import { UserPlanType, UserType } from './userTypes';
 
 @Table
 export class User extends Model<User> {
@@ -42,4 +42,17 @@ export class User extends Model<User> {
     defaultValue: 0,
   })
   trust_score: number;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(UserPlanType)),
+    allowNull: false,
+    defaultValue: UserPlanType.FREE,
+  })
+  plan_type: UserPlanType;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  plan_expires_at: Date | null;
 }

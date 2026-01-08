@@ -4,3 +4,9 @@ export enum UserType {
   PROFESSOR = 'professor',
   MODERATOR = 'moderator',
 }
+
+export enum UserPlanType {
+  FREE = 'FREE',
+  PRO = 'PRO',
+  LEGEND = 'LEGEND',
+}
