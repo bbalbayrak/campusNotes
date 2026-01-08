@@ -6,5 +6,6 @@ import { UserSubscriptionsProvider } from './user_subscriptions.provider';
 @Module({
   providers: [UserSubscriptionsService, ...UserSubscriptionsProvider],
   controllers: [UserSubscriptionsController],
+  exports: [UserSubscriptionsService],
 })
 export class UserSubscriptionsModule {}

@@ -11,6 +11,7 @@ import { NoteReview } from 'src/config/redis/note-reviews';
 import { RedisModule } from 'src/config/redis/redis.module';
 import { BookmarksModule } from '../bookmarks/bookmarks.module';
 import { DownloadsModule } from '../downloads/downloads.module';
+import { UserSubscriptionsModule } from '../user_subscriptions/user_subscriptions.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { DownloadsModule } from '../downloads/downloads.module';
     }),
     BookmarksModule,
     DownloadsModule,
+    UserSubscriptionsModule,
   ],
   providers: [NotesService, ...NotesProvider, NoteReview],
   controllers: [NotesController],

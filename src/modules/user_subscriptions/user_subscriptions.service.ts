@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { USER_SUBSCRIPTION_REPOSITORY } from 'src/config/constants';
 import { UserSubscription } from './user_subscriptions.entity';
-import { Op } from 'sequelize/types/operators';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UserSubscriptionsService {
