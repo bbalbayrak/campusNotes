@@ -26,6 +26,7 @@ import { BookmarksModule } from './modules/bookmarks/bookmarks.module';
 import { DownloadPermissionsModule } from './modules/download_permissions/download_permissions.module';
 import { DownloadsModule } from './modules/downloads/downloads.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
+import { UserSubscriptionsModule } from './modules/user_subscriptions/user_subscriptions.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { SubscriptionsModule } from './modules/subscriptions/subscriptions.modul
     DownloadPermissionsModule,
     DownloadsModule,
     SubscriptionsModule,
+    UserSubscriptionsModule,
   ],
   controllers: [AppController, FollowsLecturesController],
   providers: [

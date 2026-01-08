@@ -18,6 +18,8 @@ import { Queue } from 'bullmq';
 import { RedisService } from 'src/config/redis/redis.service';
 import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { DownloadsService } from '../downloads/downloads.service';
+import { getSignedUrlDuration } from '../user_subscriptions/subscriptions.utils';
+import { UserSubscriptionsService } from '../user_subscriptions/user_subscriptions.service';
 @Injectable()
 export class NotesService {
   private readonly redis = new Redis();
@@ -29,6 +31,7 @@ export class NotesService {
     private readonly redisService: RedisService,
     private readonly bookmarksService: BookmarksService,
     private readonly downloadsService: DownloadsService,
+    private readonly userSubscriptionsService: UserSubscriptionsService,
   ) {}
 
   async getApprovedNotes(): Promise<Note[]> {
@@ -280,6 +283,12 @@ export class NotesService {
       await this.redis.set(redisKey, 'true', 'EX', 86400);
       await this.noteReviewsQueue.add('increment-download', { noteId });
     }
+    const userSub =
+      await this.userSubscriptionsService.getActiveSubscription(userId);
+
+    //const planCode = userSub?.subscription?.code ?? 'FREE';
+    //const expiresIn = getSignedUrlDuration(planCode);
+
     const signedUrlKey = `signedurl:note:${noteId}:user:${userId}`;
     let signedUrl = await this.redis.get(signedUrlKey);
 
