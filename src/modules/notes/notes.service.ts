@@ -265,6 +265,7 @@ export class NotesService {
   //note download registration
   async registerDownload(noteId: number, userId: number) {
     const note = await this.noteRepository.findByPk(noteId);
+    const user = await this.userService.findUserById(userId);
 
     if (!note) {
       throw new NotFoundException('Note not found');
@@ -286,16 +287,27 @@ export class NotesService {
     const userSub =
       await this.userSubscriptionsService.getActiveSubscription(userId);
 
-    //const planCode = userSub?.subscription?.code ?? 'FREE';
-    //const expiresIn = getSignedUrlDuration(planCode);
+    let planCode: 'FREE' | 'PRO' | 'LEGEND' = 'FREE';
+
+    if (
+      user?.plan_type &&
+      (!user.plan_expires_at || user.plan_expires_at > new Date())
+    ) {
+      planCode = user.plan_type;
+    }
+
+    const expiresIn = getSignedUrlDuration(planCode);
 
     const signedUrlKey = `signedurl:note:${noteId}:user:${userId}`;
     let signedUrl = await this.redis.get(signedUrlKey);
 
     if (!signedUrl) {
-      signedUrl = await this.awsS3Service.getSignedUrl(note.file_url, 300);
+      signedUrl = await this.awsS3Service.getSignedUrl(
+        note.file_url,
+        expiresIn,
+      );
 
-      await this.redis.set(signedUrlKey, signedUrl, 'EX', 240);
+      await this.redis.set(signedUrlKey, signedUrl, 'EX', expiresIn - 60);
     }
 
     const downloadedNote = await this.downloadsService.createDownloadRecord(
