@@ -77,4 +77,7 @@ export class Earnings extends Model<Earnings> {
     allowNull: true,
   })
   withdrawn_at: Date;
+
+  @BelongsTo(() => User)
+  user: User;
 }

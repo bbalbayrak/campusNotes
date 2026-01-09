@@ -34,13 +34,13 @@ export class NotePurchase extends Model<NotePurchase> {
 
   @Column({
     type: DataType.DECIMAL(10, 2),
-    allowNull: false,
+    allowNull: true,
   })
   price: number;
 
   @Column({
     type: DataType.DECIMAL(10, 2),
-    allowNull: false,
+    allowNull: true,
     defaultValue: 0,
   })
   platform_amount: number;
@@ -54,7 +54,7 @@ export class NotePurchase extends Model<NotePurchase> {
 
   @Column({
     type: DataType.DECIMAL(10, 2),
-    allowNull: false,
+    allowNull: true,
   })
   author_amount: number; // Amount author receives (60/85/95 TL)
 
@@ -75,4 +75,18 @@ export class NotePurchase extends Model<NotePurchase> {
     allowNull: true,
   })
   completed_at: Date; // When purchase was completed
+
+  @Column({
+    type: DataType.DECIMAL(10, 2),
+    allowNull: false,
+    defaultValue: 0,
+  })
+  amount_paid: number; // Total amount paid by buyer
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  is_quota_purchase: boolean; // Whether purchase was made using quota
 }

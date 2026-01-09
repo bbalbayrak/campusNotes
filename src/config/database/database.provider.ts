@@ -12,6 +12,9 @@ import { FollowLecture } from 'src/modules/follows_lectures/follow_lectures.enti
 import { FollowsDepartments } from 'src/modules/follows_departments/follows_departments.entity';
 import { NoteBookmark } from 'src/modules/bookmarks/bookmarks.entity';
 import { Downloads } from 'src/modules/downloads/downloads.entity';
+import { NotePurchase } from 'src/modules/note_purchases/note_purchases.entity';
+import { Earnings } from 'src/modules/earnings/earnings.entity';
+import { DownloadPermission } from 'src/modules/download_permissions/permission.entity';
 
 export const databaseProviders = [
   {
@@ -45,6 +48,9 @@ export const databaseProviders = [
         FollowsDepartments,
         NoteBookmark,
         Downloads,
+        NotePurchase,
+        Earnings,
+        DownloadPermission,
       ]);
 
       await sequelize.sync();

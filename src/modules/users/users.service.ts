@@ -115,4 +115,40 @@ export class UsersService {
       throw error;
     }
   }
+
+  async incrementTrustScore(
+    userId: number,
+    incrementBy: number,
+  ): Promise<User> {
+    const user = await this.userRepository.findByPk(userId);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
+
+    user.trust_score += incrementBy;
+    await user.save();
+    return user;
+  }
+
+  async updateUserPendingEarnings(
+    userId: number,
+    amount: number,
+  ): Promise<User> {
+    const user = await this.userRepository.findByPk(userId);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
+    const safeAmount = Number(Number(amount).toFixed(2));
+
+    user.pending_earnings = safeAmount;
+
+    try {
+      await user.save();
+    } catch (error) {
+      console.error('DB Save Error:', error);
+      throw error;
+    }
+
+    return user;
+  }
 }

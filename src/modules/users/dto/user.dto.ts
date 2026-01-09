@@ -7,7 +7,7 @@ import {
   IsOptional,
   IsEnum,
 } from 'class-validator';
-import { UserType } from '../userTypes';
+import { UserPlanType, UserType } from '../userTypes';
 
 export class UserDto {
   @IsNotEmpty({ message: 'Name is required' })
@@ -43,4 +43,10 @@ export class UserDto {
   @IsOptional()
   @IsInt({ message: 'Trust score must be an integer' })
   readonly trust_score?: number;
+
+  @IsNotEmpty({ message: 'Plan type is required' })
+  @IsEnum([...Object.values(UserPlanType)], {
+    message: 'Plan type must be either FREE or PREMIUM',
+  })
+  readonly plan_type: UserPlanType;
 }
