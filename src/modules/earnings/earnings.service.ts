@@ -42,7 +42,6 @@ export class EarningsService {
     const debtList = await this.earningsRepository.findAll({
       attributes: [
         'user_id',
-        // 'id' yerine açıkça 'Earnings.id' veya sadece 'user_id' kullanmalısın
         [
           this.earningsRepository.sequelize.fn(
             'SUM',
@@ -133,6 +132,75 @@ export class EarningsService {
         message: 'Payout processed successfully.',
         paidAmount: Number(totalPaid.toFixed(2)),
         authorId,
+      };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  async processSingleEarningPayout(authorId: number, earningId: number) {
+    const transaction = await this.earningsRepository.sequelize.transaction();
+
+    try {
+      // 1. Find the single earning belonging to that user.
+      const selectedEarning = await this.earningsRepository.findOne({
+        where: {
+          id: earningId,
+          user_id: authorId,
+          status: { [Op.in]: ['PENDING', 'CONFIRMED'] },
+        },
+        transaction,
+      });
+
+      if (!selectedEarning) {
+        throw new BadRequestException(
+          'The selected payment could not be found or has already been paid.',
+        );
+      }
+
+      // 2. Get the amount to be paid.
+      const amountToPay = Number(selectedEarning.uploader_amount);
+
+      // 3. Update the record to WITHDRAWN
+      await this.earningsRepository.update(
+        {
+          status: 'WITHDRAWN',
+          withdrawn_at: new Date(),
+        },
+        {
+          where: { id: earningId },
+          transaction,
+        },
+      );
+
+      // 4. Only deduct this paid amount from the user's pending_earnings balance.
+      const user = await User.findByPk(authorId, { transaction });
+      if (user) {
+        // existing balance
+        const currentBalance = Number(user.pending_earnings);
+        user.pending_earnings = Math.max(
+          0,
+          Number((currentBalance - amountToPay).toFixed(2)),
+        );
+        await user.save({ transaction });
+      }
+
+      await transaction.commit();
+
+      // 5. Notification send
+      //   await this.notificationService.createNotification(
+      //     authorId,
+      //     'Payment Processed! ✅',
+      //     `${amountToPay} amount has been paid to your account.`,
+      //     'PAYOUT',
+      //   );
+
+      return {
+        message: 'Transaction has been paid successfully.',
+        paidAmount: amountToPay,
+        earningId: earningId,
+        remainingUserBalance: user.pending_earnings,
       };
     } catch (error) {
       await transaction.rollback();
