@@ -1,33 +1,53 @@
-import {
-  IsBoolean,
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
-import { SubscriptionType } from '../subs.type';
+import { IsNotEmpty, IsString, IsEnum, IsOptional } from 'class-validator';
+import { UserPlanType } from 'src/modules/users/userTypes';
 
-export class CreateSubscriptionDto {
-  @IsEnum(SubscriptionType, { message: 'Invalid subscription type' })
+export class ActivateSubscriptionDto {
   @IsNotEmpty({ message: 'Subscription type is required' })
-  readonly type: SubscriptionType;
-  @IsNotEmpty({ message: 'Price is required' })
-  @IsInt({ message: 'Price must be an integer' })
-  readonly price: number;
-  @IsNotEmpty({ message: 'Currency is required' })
-  @IsString({ message: 'Currency must be a string' })
-  readonly currency: string;
-  @IsNotEmpty({ message: 'Duration (in days) is required' })
-  @IsInt({ message: 'Duration must be an integer' })
-  readonly duration_days: number;
-  @IsNotEmpty({ message: 'Uploader share percent is required' })
-  @IsInt({ message: 'Uploader share percent must be an integer' })
-  readonly uploader_share_percent: number;
-  @IsNotEmpty({ message: 'Platform cut percent is required' })
-  @IsInt({ message: 'Platform cut percent must be an integer' })
-  readonly platform_cut_percent: number;
-  @IsOptional({ message: 'Active status is optional' })
-  @IsBoolean({ message: 'Active status must be a boolean' })
-  readonly is_active: boolean;
+  @IsEnum(UserPlanType, { message: 'Invalid subscription type' })
+  subscriptionType: UserPlanType;
+
+  @IsNotEmpty({ message: 'Platform is required' })
+  @IsEnum(['apple', 'google'], { message: 'Platform must be apple or google' })
+  platform: 'apple' | 'google';
+
+  @IsNotEmpty({ message: 'Receipt data is required' })
+  @IsString({ message: 'Receipt data must be a string' })
+  receiptData: string;
+
+  @IsNotEmpty({ message: 'Product ID is required' })
+  @IsString({ message: 'Product ID must be a string' })
+  productId: string;
+
+  @IsOptional()
+  @IsString({ message: 'Transaction ID must be a string' })
+  transactionId?: string;
+}
+
+export class CancelSubscriptionDto {
+  @IsOptional()
+  @IsString({ message: 'Reason must be a string' })
+  reason?: string;
+}
+
+export class VerifyReceiptDto {
+  @IsNotEmpty({ message: 'Platform is required' })
+  @IsEnum(['apple', 'google'], { message: 'Platform must be apple or google' })
+  platform: 'apple' | 'google';
+
+  @IsNotEmpty({ message: 'Receipt data is required' })
+  @IsString({ message: 'Receipt data must be a string' })
+  receiptData: string;
+
+  @IsNotEmpty({ message: 'Product ID is required' })
+  @IsString({ message: 'Product ID must be a string' })
+  productId: string;
+}
+
+export class GrantSubscriptionDto {
+  @IsNotEmpty({ message: 'Subscription type is required' })
+  @IsEnum(UserPlanType, { message: 'Invalid subscription type' })
+  subscriptionType: UserPlanType;
+
+  @IsNotEmpty({ message: 'Duration is required' })
+  duration_days: number;
 }

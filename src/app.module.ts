@@ -29,6 +29,7 @@ import { SubscriptionsModule } from './modules/subscriptions/subscriptions.modul
 import { UserSubscriptionsModule } from './modules/user_subscriptions/user_subscriptions.module';
 import { EarningsModule } from './modules/earnings/earnings.module';
 import { WithdrawalsModule } from './modules/withdrawals/withdrawals.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { WithdrawalsModule } from './modules/withdrawals/withdrawals.module';
     BullModule.registerQueue({
       name: 'note-reviews',
     }),
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     UsersModule,

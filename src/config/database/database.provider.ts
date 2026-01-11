@@ -15,6 +15,8 @@ import { Downloads } from 'src/modules/downloads/downloads.entity';
 import { NotePurchase } from 'src/modules/note_purchases/note_purchases.entity';
 import { Earnings } from 'src/modules/earnings/earnings.entity';
 import { DownloadPermission } from 'src/modules/download_permissions/permission.entity';
+import { Subscriptions } from 'src/modules/subscriptions/subscriptions.entity';
+import { UserSubscription } from 'src/modules/user_subscriptions/user_subscriptions.entity';
 
 export const databaseProviders = [
   {
@@ -51,6 +53,8 @@ export const databaseProviders = [
         NotePurchase,
         Earnings,
         DownloadPermission,
+        Subscriptions,
+        UserSubscription,
       ]);
 
       await sequelize.sync();
