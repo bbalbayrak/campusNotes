@@ -30,6 +30,7 @@ import { UserSubscriptionsModule } from './modules/user_subscriptions/user_subsc
 import { EarningsModule } from './modules/earnings/earnings.module';
 import { WithdrawalsModule } from './modules/withdrawals/withdrawals.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { UniGradingSystemModule } from './modules/uni-grading-system/uni-grading-system.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     UserSubscriptionsModule,
     EarningsModule,
     WithdrawalsModule,
+    UniGradingSystemModule,
   ],
   controllers: [AppController, FollowsLecturesController],
   providers: [
