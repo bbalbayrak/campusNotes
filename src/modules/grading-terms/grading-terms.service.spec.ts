@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GradingService } from './uni-grading-system.service';
+import { GradingTermsService } from './grading-terms.service';
 
-describe('GradingService', () => {
-  let service: GradingService;
+describe('GradingTermsService', () => {
+  let service: GradingTermsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GradingService],
+      providers: [GradingTermsService],
     }).compile();
 
-    service = module.get<GradingService>(GradingService);
+    service = module.get<GradingTermsService>(GradingTermsService);
   });
 
   it('should be defined', () => {

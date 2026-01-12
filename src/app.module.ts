@@ -31,6 +31,7 @@ import { EarningsModule } from './modules/earnings/earnings.module';
 import { WithdrawalsModule } from './modules/withdrawals/withdrawals.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UniGradingSystemModule } from './modules/uni-grading-system/uni-grading-system.module';
+import { GradingTermsModule } from './modules/grading-terms/grading-terms.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { UniGradingSystemModule } from './modules/uni-grading-system/uni-grading
     EarningsModule,
     WithdrawalsModule,
     UniGradingSystemModule,
+    GradingTermsModule,
   ],
   controllers: [AppController, FollowsLecturesController],
   providers: [
