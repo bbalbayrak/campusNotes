@@ -1,10 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import {
   CourseInput,
   GeneralGradingInput,
   GradingService,
 } from './uni-grading-system.service';
+import { JwtAuthGuard } from '../auth/passport/jwt.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('grading')
 export class GradingController {
   constructor(private readonly gradingService: GradingService) {}
