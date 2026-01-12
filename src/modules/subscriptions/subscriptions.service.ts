@@ -317,7 +317,7 @@ export class SubscriptionsService {
         user_id: userId,
         status: SubscriptionStatus.ACTIVE,
       },
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
     });
 
     if (!userSub) {
@@ -417,14 +417,14 @@ export class SubscriptionsService {
     return await this.userSubscriptionModel.findOne({
       where: { user_id: userId },
       include: [Subscriptions],
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
     });
   }
   async getSubscriptionHistory(userId: number) {
     return await this.userSubscriptionModel.findAll({
       where: { user_id: userId },
       include: [Subscriptions],
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
     });
   }
   async hasActiveSubscription(userId: number): Promise<boolean> {

@@ -1,4 +1,5 @@
 import {
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -73,4 +74,7 @@ export class UserSubscription extends Model<UserSubscription> {
     allowNull: true,
   })
   cancellation_reason: string;
+
+  @BelongsTo(() => Subscriptions)
+  subscription: Subscriptions;
 }
