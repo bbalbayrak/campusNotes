@@ -19,6 +19,6 @@ async function bootstrap() {
   app.enableCors();
 
   app.use(cookieParser());
-  await app.listen(port, '0.0.0.0');
+  await app.listen(port);
 }
 bootstrap();
