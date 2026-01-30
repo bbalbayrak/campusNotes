@@ -32,13 +32,12 @@ import { WithdrawalsModule } from './modules/withdrawals/withdrawals.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UniGradingSystemModule } from './modules/uni-grading-system/uni-grading-system.module';
 import { GradingTermsModule } from './modules/grading-terms/grading-terms.module';
-import { DiscussionModule } from './modules/discussion/discussion.module';
 
 @Module({
   imports: [
     BullModule.forRoot({
       connection: {
-        host: process.env.REDIS_HOST,
+        host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT) || 6379,
       },
     }),
@@ -77,7 +76,6 @@ import { DiscussionModule } from './modules/discussion/discussion.module';
     WithdrawalsModule,
     UniGradingSystemModule,
     GradingTermsModule,
-    DiscussionModule,
   ],
   controllers: [AppController, FollowsLecturesController],
   providers: [

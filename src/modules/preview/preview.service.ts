@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as pdfPoppler from 'pdf-poppler';
+import { fromBuffer } from 'pdf2pic';
 import * as sharp from 'sharp';
 
 @Injectable()
@@ -13,14 +13,19 @@ export class PreviewService {
     const pdfPath = path.join(tempDir, 'source.pdf');
     fs.writeFileSync(pdfPath, pdfBuffer);
 
-    await pdfPoppler.convert(pdfPath, {
-      format: 'png',
-      out_dir: tempDir,
-      out_prefix: 'page',
-      page: 1,
-    });
+    const options = {
+      density: 100,
+      saveFilename: 'page',
+      savePath: tempDir,
+      format: 'png' as const,
+      width: 2000,
+      height: 2000,
+    };
 
-    const imagePath = path.join(tempDir, 'page-1.png');
+    const convert = fromBuffer(pdfBuffer, options);
+    const result = await convert(1, { responseType: 'image' });
+
+    const imagePath = result.path;
 
     const optimized = await sharp(imagePath)
       .resize(800)
