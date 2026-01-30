@@ -18,6 +18,8 @@ import { DownloadPermission } from 'src/modules/download_permissions/permission.
 import { Subscriptions } from 'src/modules/subscriptions/subscriptions.entity';
 import { UserSubscription } from 'src/modules/user_subscriptions/user_subscriptions.entity';
 import { Withdrawal } from 'src/modules/withdrawals/withdrawals.entity';
+import { Discussion } from 'src/modules/discussion/discussion.entity';
+import { DiscussionLike } from 'src/modules/discussion/discussion-like.entity';
 
 export const databaseProviders = [
   {
@@ -57,6 +59,8 @@ export const databaseProviders = [
         Subscriptions,
         UserSubscription,
         Withdrawal,
+        Discussion,
+        DiscussionLike,
       ]);
 
       await sequelize.sync();
