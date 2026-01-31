@@ -1,31 +1,15 @@
-# Development Dockerfile with hot reload
 FROM node:20-alpine AS development
 
-# Install development dependencies including poppler-utils for pdf processing
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    cairo-dev \
-    jpeg-dev \
-    pango-dev \
-    giflib-dev \
-    poppler-utils \
-    graphicsmagick
+WORKDIR /usr/src/app
 
-WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including dev dependencies)
 RUN npm install
 
-# Copy source code (will be overridden by volume mount in docker-compose.dev.yml)
 COPY . .
 
-# Expose application and debug ports
-EXPOSE 8080 9229
+RUN npm run build
 
-# Start in development mode with hot reload
+EXPOSE 8080
+
 CMD ["npm", "run", "start:dev"]

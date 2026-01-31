@@ -1,116 +1,58 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:16-alpine
-    container_name: campus-notes-postgres-dev
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASS:-admin}
-      POSTGRES_DB: ${DB_NAME_DEVELOPMENT:-campus_notes}
-      PGDATA: /var/lib/postgresql/data/pgdata
-    ports:
-      - "${DB_PORT:-5432}:5432"
-    volumes:
-      - postgres_dev_data:/var/lib/postgresql/data
-    networks:
-      - campus-notes-dev-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME_DEVELOPMENT:-campus_notes}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Redis for BullMQ
-  redis:
-    image: redis:7-alpine
-    container_name: campus-notes-redis-dev
-    restart: unless-stopped
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_dev_data:/data
-    networks:
-      - campus-notes-dev-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    command: redis-server --appendonly yes
-
-  # NestJS Application (Development with hot reload)
-  app:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile.dev
-      target: development
-    container_name: campus-notes-app-dev
-    restart: unless-stopped
+    container_name: campus-notes-backend
     ports:
-      - "${PORT:-8080}:8080"
-      - "9229:9229"  # Debug port
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
     environment:
       NODE_ENV: development
-      PORT: ${PORT:-8080}
+      PORT: 8080
 
       # Database
       DB_HOST: postgres
-      DB_PORT: ${DB_PORT:-5432}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASS: ${DB_PASS:-admin}
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: admin
+      DB_NAME_DEVELOPMENT: campus_notes
       DB_DIALECT: postgres
-      DB_NAME_DEVELOPMENT: ${DB_NAME_DEVELOPMENT:-campus_notes}
 
-      # Redis
-      REDIS_HOST: localhost
-      REDIS_PORT: ${REDIS_PORT:-6379}
-
-      # JWT
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRESIN: ${JWT_EXPIRESIN:-86400}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
-      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-604800}
-
-      # AWS S3
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_REGION: ${AWS_REGION:-us-east-1}
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
-
-      # App Store/Play Store
-      APPLE_SHARED_SECRET: ${APPLE_SHARED_SECRET}
-      GOOGLE_PACKAGE_NAME: ${GOOGLE_PACKAGE_NAME}
-      GOOGLE_SERVICE_ACCOUNT_KEY_PATH: ${GOOGLE_SERVICE_ACCOUNT_KEY_PATH}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - campus-notes-dev-network
-    volumes:
-      # Mount source code for hot reload
-      - ./src:/app/src:delegated
-      - ./package.json:/app/package.json
-      - ./tsconfig.json:/app/tsconfig.json
-      - ./nest-cli.json:/app/nest-cli.json
-      # Use named volume for node_modules to avoid conflicts
-      - node_modules_dev:/app/node_modules
-      # Mount for Google service account key if needed
-      - ./service-account.json:/app/service-account.json:ro
+      # Redis (⚠️ BURASI KRİTİK)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     command: npm run start:dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
 
-networks:
-  campus-notes-dev-network:
-    driver: bridge
+  postgres:
+    image: postgres:16-alpine
+    container_name: campus-notes-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: campus_notes
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: campus-notes-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
 
 volumes:
-  postgres_dev_data:
-    driver: local
-  redis_dev_data:
-    driver: local
-  node_modules_dev:
-    driver: local
+  postgres-data:
